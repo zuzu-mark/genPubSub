@@ -61,7 +61,6 @@ private:
   }
 #endif
 
-  // template <typename msgT>
   void topic_callback(std::shared_ptr<rclcpp::SerializedMessage> message) {
     msgT deserialized_message;
     rclcpp::Serialization<msgT> serializer;
@@ -69,7 +68,7 @@ private:
 
     auto recv = this->get_data_from_msg(deserialized_message);
     // auto recv = deserialized_message;
-    //  counter++;
+
     size_t counter = 0;
     RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s", counter,
                 typeid(recv).name());
@@ -94,21 +93,7 @@ private:
         topic_name, type, rclcpp::QoS(1),
         std::bind(&genSub2<msgT>::topic_callback, this, _1));
 
-#if 0
-    sub_ = node_->create_generic_subscription(
-        topic_name, type, rclcpp::QoS(1),
-        [&counter, this](std::shared_ptr<rclcpp::SerializedMessage> message) {
-          T2 deserialized_message;
-          rclcpp::Serialization<T2> serializer;
-          serializer.deserialize_message(message.get(), &deserialized_message);
-
-          //auto recv = this->get_data_from_msg(deserialized_message);
-          auto recv = deserialized_message;
-          counter++;
-        });
-#endif
-
-    return; // messages;
+    return;
   }
 #endif
 

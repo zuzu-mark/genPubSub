@@ -46,17 +46,13 @@ public:
     }
   }
   // ctor
-  PublisherNode()
-      : Node("PublisherNode"), count_(0) { //, gp_(new genPub(this)) {
+  PublisherNode() : Node("PublisherNode"), count_(0) {
 
 #if 1
-    // gp2_ = new genPub2<sensor_msgs::msg::PointCloud2::SharedPtr>(this);
     gp2_ = new genPub2<sensor_msgs::msg::PointCloud2>(this);
-    // auto gp2 = std::make_shared<genPub2<int>>(this);
     std::string topic_name = "/string_topic";
     std::string type = "sensor_msgs/msg/PointCloud2";
     gp2_->init(topic_name, type);
-    // gp2_->stop();
 
     rclcpp::Rate rate(1);
     auto timer_callback = [this]() -> void {
@@ -73,8 +69,6 @@ public:
       ///////////////////////
       // SEND
       ///////////////////////
-      // gp_->send();
-#if 1
       {
         pcl::PCLPointCloud2::Ptr cloud_filtered(new pcl::PCLPointCloud2());
         sensor_msgs::msg::PointCloud2 bbb;
@@ -88,18 +82,12 @@ public:
         // this->count_++;
 
         // convert
-        // pcl_conversions::fromPCL(*cloud_filtered, *bbb2);
-        // gp2_->send(bbb2);
         pcl_conversions::fromPCL(*cloud_filtered, bbb);
         gp2_->send(bbb);
       }
-#endif
     };
     timer_ = this->create_wall_timer(500ms, timer_callback);
 #endif
-    // RCLCPP_INFO(this->get_logger(), "\n<<start >>");
-    // rate.sleep();
-    // RCLCPP_INFO(this->get_logger(), "\n<<end >>");
   }
 
 private:
@@ -109,9 +97,6 @@ private:
   size_t count_;
 
   genPub2<sensor_msgs::msg::PointCloud2> *gp2_;
-  // genPub2<sensor_msgs::msg::PointCloud2::SharedPtr> *gp2_;
-  //  genPub2<int> *gp2_;
-  // genPub *gp_;
 };
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -126,9 +111,7 @@ class DualThreadedNode : public rclcpp::Node {
 public:
   ~DualThreadedNode() {
     if (gs2_ != nullptr) {
-      // gs2_->stop();
       std::cout << "dtor(recv)" << std::endl;
-      // gs2_->~genSub2();
       delete gs2_;
     }
   }
@@ -140,7 +123,6 @@ public:
     std::string topic_name = "/string_topic";
     std::string type = "sensor_msgs/msg/PointCloud2";
     // recv
-    // gs_->recv();
     gs2_->recv(topic_name, type);
 #endif
   }
