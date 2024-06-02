@@ -20,7 +20,7 @@ find_package(PCL 1.12 REQUIRED)
 
 include_directories(${PCL_INCLUDE_DIRS} include)
 link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
+add_definitions(${PCL_DEFINITIONS} -g -O0)
 
 
 add_executable(multithreaded_executor main.cpp pub.cpp sub.cpp)

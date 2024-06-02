@@ -27,11 +27,24 @@ class PublisherNode;
 template <typename msgT> class genPub2 {
 public:
   using Ptr = std::shared_ptr<genPub2>;
+  ~genPub2() {
+    if (publisher2_ != nullptr) {
+      std::cout << "genpub-dtor" << std::endl;
+    }
+  }
   genPub2(PublisherNode *node) : node_(node), count_(0) {}
 
   void init(std::string topic_name, std::string type);
 
   void send(msgT a);
+  void stop() {
+
+    if (publisher2_ != nullptr) {
+      std::cout << "deleter" << std::endl;
+      publisher2_.reset();
+      publisher2_ = nullptr;
+    }
+  }
 
 private:
   void write_message(const msgT &data, msgT &message) { message = data; }
@@ -64,7 +77,7 @@ template <typename msgT> void genPub2<msgT>::send(msgT msg) {
   ////////////////////////////////
   // execute PUB
   ////////////////////////////////
-  {
+  if (publisher2_ != nullptr) {
     // publish
     this->publisher2_->publish(serialize_message<msgT, msgT>(msg));
   }

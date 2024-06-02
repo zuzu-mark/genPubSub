@@ -1,4 +1,5 @@
 #include "base.hpp"
+//#include "unistd.h"
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
@@ -9,15 +10,16 @@ int main(int argc, char *argv[]) {
   auto pubnode = std::make_shared<PublisherNode>();
   executor.add_node(pubnode);
 #endif
-#if 0
+#if 1
   auto subnode =
       std::make_shared<DualThreadedNode>(); // This contains BOTH subscriber
                                             // callbacks. They will still run on
                                             // different threads One Node. Two
                                             // callbacks. Two Threads
   executor.add_node(subnode);
-  executor.spin();
 #endif
+  //sleep(1);
+  executor.spin();
   rclcpp::shutdown();
   return 0;
 }

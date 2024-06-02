@@ -47,15 +47,18 @@ public:
     }
   }
   // ctor
-  PublisherNode() : Node("PublisherNode"), count_(0), gp_(new genPub(this)) {
+  PublisherNode()
+      : Node("PublisherNode"), count_(0) { //, gp_(new genPub(this)) {
 
-#if 0
     gp2_ = new genPub2<sensor_msgs::msg::PointCloud2>(this);
     // auto gp2 = std::make_shared<genPub2<int>>(this);
     std::string topic_name = "/string_topic";
     std::string type = "sensor_msgs/msg/PointCloud2";
     gp2_->init(topic_name, type);
+    //gp2_->stop();
 
+	rclcpp::Rate rate(1);
+#if 1
     auto timer_callback = [this]() -> void {
       auto message = std_msgs::msg::String();
       message.data = "Hello World! " + std::to_string(this->count_++);
@@ -91,6 +94,9 @@ public:
     };
     timer_ = this->create_wall_timer(500ms, timer_callback);
 #endif
+      RCLCPP_INFO(this->get_logger(), "\n<<start >>");
+	 rate.sleep();
+      RCLCPP_INFO(this->get_logger(), "\n<<end >>");
   }
 
 private:
@@ -101,7 +107,7 @@ private:
 
   genPub2<sensor_msgs::msg::PointCloud2> *gp2_;
   // genPub2<int> *gp2_;
-  genPub *gp_;
+  //genPub *gp_;
 };
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -110,17 +116,17 @@ private:
 class genSub;
 class DualThreadedNode : public rclcpp::Node {
 
-  genSub *gs_;
+  //genSub *gs_;
   genSub2<sensor_msgs::msg::PointCloud2> *gs2_;
 
 public:
   ~DualThreadedNode() {
     if (gs2_ != nullptr) {
       std::cout << "dtor(recv)" << std::endl;
-      delete gs_;
+      delete gs2_;
     }
   }
-  DualThreadedNode() : Node("DualThreadedNode"), gs_(new genSub(this)) {
+  DualThreadedNode() : Node("DualThreadedNode") { //, gs_(new genSub(this)) {
 
     gs2_ = new genSub2<sensor_msgs::msg::PointCloud2>(this);
 
