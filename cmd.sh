@@ -1,1 +1,1 @@
-ros2 bag play my.mcap -l
+ros2 bag play my.mcap -l #--clock
