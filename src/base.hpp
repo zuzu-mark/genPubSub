@@ -36,7 +36,6 @@ inline std::string string_thread_id() {
 ///////////////////////////////////////
 ///////////////////////////////////////
 #include "pub.hpp"
-// class genPub;
 class PublisherNode : public rclcpp::Node {
 
 public:
@@ -50,15 +49,16 @@ public:
   PublisherNode()
       : Node("PublisherNode"), count_(0) { //, gp_(new genPub(this)) {
 
+#if 1
+    // gp2_ = new genPub2<sensor_msgs::msg::PointCloud2::SharedPtr>(this);
     gp2_ = new genPub2<sensor_msgs::msg::PointCloud2>(this);
     // auto gp2 = std::make_shared<genPub2<int>>(this);
     std::string topic_name = "/string_topic";
     std::string type = "sensor_msgs/msg/PointCloud2";
     gp2_->init(topic_name, type);
-    //gp2_->stop();
+    // gp2_->stop();
 
-	rclcpp::Rate rate(1);
-#if 1
+    rclcpp::Rate rate(1);
     auto timer_callback = [this]() -> void {
       auto message = std_msgs::msg::String();
       message.data = "Hello World! " + std::to_string(this->count_++);
@@ -78,6 +78,7 @@ public:
       {
         pcl::PCLPointCloud2::Ptr cloud_filtered(new pcl::PCLPointCloud2());
         sensor_msgs::msg::PointCloud2 bbb;
+        sensor_msgs::msg::PointCloud2::SharedPtr bbb2;
 
         // make-data
         std::vector<std::uint8_t> data;
@@ -87,6 +88,8 @@ public:
         // this->count_++;
 
         // convert
+        // pcl_conversions::fromPCL(*cloud_filtered, *bbb2);
+        // gp2_->send(bbb2);
         pcl_conversions::fromPCL(*cloud_filtered, bbb);
         gp2_->send(bbb);
       }
@@ -94,9 +97,9 @@ public:
     };
     timer_ = this->create_wall_timer(500ms, timer_callback);
 #endif
-      RCLCPP_INFO(this->get_logger(), "\n<<start >>");
-	 rate.sleep();
-      RCLCPP_INFO(this->get_logger(), "\n<<end >>");
+    // RCLCPP_INFO(this->get_logger(), "\n<<start >>");
+    // rate.sleep();
+    // RCLCPP_INFO(this->get_logger(), "\n<<end >>");
   }
 
 private:
@@ -106,8 +109,9 @@ private:
   size_t count_;
 
   genPub2<sensor_msgs::msg::PointCloud2> *gp2_;
-  // genPub2<int> *gp2_;
-  //genPub *gp_;
+  // genPub2<sensor_msgs::msg::PointCloud2::SharedPtr> *gp2_;
+  //  genPub2<int> *gp2_;
+  // genPub *gp_;
 };
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -116,18 +120,21 @@ private:
 class genSub;
 class DualThreadedNode : public rclcpp::Node {
 
-  //genSub *gs_;
+  // genSub *gs_;
   genSub2<sensor_msgs::msg::PointCloud2> *gs2_;
 
 public:
   ~DualThreadedNode() {
     if (gs2_ != nullptr) {
+      // gs2_->stop();
       std::cout << "dtor(recv)" << std::endl;
+      // gs2_->~genSub2();
       delete gs2_;
     }
   }
   DualThreadedNode() : Node("DualThreadedNode") { //, gs_(new genSub(this)) {
 
+#if 1
     gs2_ = new genSub2<sensor_msgs::msg::PointCloud2>(this);
 
     std::string topic_name = "/string_topic";
@@ -135,6 +142,7 @@ public:
     // recv
     // gs_->recv();
     gs2_->recv(topic_name, type);
+#endif
   }
 
 private:

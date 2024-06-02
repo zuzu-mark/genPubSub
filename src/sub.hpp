@@ -24,15 +24,18 @@ class DualThreadedNode;
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
+using std::placeholders::_1;
 template <typename msgT> class genSub2 {
 public:
-  using Ptr = std::shared_ptr<genSub2>;
+  // using Ptr = std::shared_ptr<genSub2>;
   genSub2(DualThreadedNode *node) : node_(node) {}
   void recv(std::string topic_name, std::string type);
 
   ~genSub2() {
     if (sub_ != nullptr) {
       std::cout << "gensub-dtor" << std::endl;
+      sub_.reset();
+      sub_ = nullptr;
     }
   }
   void stop() {
@@ -45,6 +48,10 @@ public:
   }
 
 private:
+  sensor_msgs::msg::PointCloud2 get_data_from_msg(const msgT &message) {
+    return message;
+  }
+#if 0
   sensor_msgs::msg::PointCloud2::SharedPtr
   get_data_from_msg(const msgT &message) { 
      sensor_msgs::msg::PointCloud2::SharedPtr bbb(
@@ -52,7 +59,30 @@ private:
      bbb=message;
 	  return bbb;
   }
+#endif
 
+  // template <typename msgT>
+  void topic_callback(std::shared_ptr<rclcpp::SerializedMessage> message) {
+    msgT deserialized_message;
+    rclcpp::Serialization<msgT> serializer;
+    serializer.deserialize_message(message.get(), &deserialized_message);
+
+    auto recv = this->get_data_from_msg(deserialized_message);
+    // auto recv = deserialized_message;
+    //  counter++;
+    size_t counter = 0;
+    RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s", counter,
+                typeid(recv).name());
+
+#if 1 // verify
+    RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s", counter,
+                typeid(recv).name());
+
+    for (auto v : recv.data) {
+      RCLCPP_INFO(node_->get_logger(), "\n<<receive2 %ld>> : %d", counter, (v));
+    }
+#endif
+  }
 #if 1
   template <typename T2>
   void subscribe_raw_messages(size_t expected_recv_msg_count,
@@ -62,27 +92,21 @@ private:
 
     sub_ = node_->create_generic_subscription(
         topic_name, type, rclcpp::QoS(1),
+        std::bind(&genSub2<msgT>::topic_callback, this, _1));
+
+#if 0
+    sub_ = node_->create_generic_subscription(
+        topic_name, type, rclcpp::QoS(1),
         [&counter, this](std::shared_ptr<rclcpp::SerializedMessage> message) {
           T2 deserialized_message;
           rclcpp::Serialization<T2> serializer;
           serializer.deserialize_message(message.get(), &deserialized_message);
 
-          auto recv = this->get_data_from_msg(deserialized_message);
+          //auto recv = this->get_data_from_msg(deserialized_message);
+          auto recv = deserialized_message;
           counter++;
-
-#if 0 // verify
-          RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s",
-                      counter, typeid(recv).name());
-
-          for (auto v : recv.data) {
-            //RCLCPP_INFO(node_->get_logger(), "\n<<receive2[aa] %ld>> : %s",
-            //            counter, typeid(v).name());
-
-            RCLCPP_INFO(node_->get_logger(), "\n<<receive2 %ld>> : %d", counter,
-                        (v));
-          }
-#endif
         });
+#endif
 
     return; // messages;
   }
@@ -99,7 +123,7 @@ inline void genSub2<msgT>::recv(std::string topic_name, std::string type) {
   subscribe_raw_messages<sensor_msgs::msg::PointCloud2>(1, topic_name, type);
 }
 //////////////////////////////////////////////////
-//////////////////////////////////////////////////
+////////////////////////////////////////////////// {{{
 //////////////////////////////////////////////////
 class genSub {
 public:
@@ -122,3 +146,4 @@ private:
   DualThreadedNode *node_;
   std::shared_ptr<rclcpp::GenericSubscription> sub_;
 };
+//}}}
