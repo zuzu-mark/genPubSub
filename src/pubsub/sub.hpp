@@ -69,11 +69,11 @@ private:
     auto recv = this->get_data_from_msg(deserialized_message);
     // auto recv = deserialized_message;
 
+#if 0 // verify
     size_t counter = 0;
     RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s", counter,
                 typeid(recv).name());
 
-#if 1 // verify
     RCLCPP_INFO(node_->get_logger(), "\n<<receive2[type] %ld>> : %s", counter,
                 typeid(recv).name());
 
@@ -81,6 +81,19 @@ private:
       RCLCPP_INFO(node_->get_logger(), "\n<<receive2 %ld>> : %d", counter, (v));
     }
 #endif
+
+    auto time_offset_ns = (node_->now() - recv.header.stamp).nanoseconds();
+    auto timestamp_offset_ns =
+        (rclcpp::Time(recv.header.stamp) - m_last_cloud_ts).nanoseconds();
+    auto time_offset_ms = time_offset_ns / 1000000.0F;
+    auto timestamp_offset_ms = timestamp_offset_ns / 1000000.0F;
+    RCLCPP_INFO(node_->get_logger(), "get-pcl1m-transport-time: %.3f [ms]",
+                time_offset_ms);
+    if (m_last_cloud_ts.nanoseconds() > 0.0) {
+      RCLCPP_INFO(node_->get_logger(), "get-pcl1m-timestamp_offset-time: %.3f",
+                  timestamp_offset_ms);
+    }
+    m_last_cloud_ts = recv.header.stamp;
   }
 #if 1
   template <typename T2>
@@ -100,6 +113,7 @@ private:
 private:
   DualThreadedNode *node_;
   std::shared_ptr<rclcpp::GenericSubscription> sub_;
+  rclcpp::Time m_last_cloud_ts{0, 0, RCL_ROS_TIME};
 };
 ////////////////////
 template <typename msgT>

@@ -17,24 +17,31 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(PCL 1.12 REQUIRED)
+find_package(shm_msgs REQUIRED)
 
-include_directories(${PCL_INCLUDE_DIRS} include)
+include_directories(${shm_msgs_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} include)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS} -g -O0)
 
 
 add_executable(multithreaded_executor main.cpp pub.cpp sub.cpp)
 ament_target_dependencies(multithreaded_executor rclcpp std_msgs sensor_msgs
+	shm_msgs
 	pcl_conversions)
 
 target_link_libraries( multithreaded_executor
     ${PCL_LIBRARIES}
+    ${shm_msgs_LIBRARIES}
 )
 
 install(TARGETS
   multithreaded_executor
   DESTINATION lib/${PROJECT_NAME}
 )
+# install(TARGETS
+  # pcd
+  # DESTINATION share/${PROJECT_NAME}
+# )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

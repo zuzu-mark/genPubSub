@@ -36,6 +36,7 @@ inline std::string string_thread_id() {
 ///////////////////////////////////////
 ///////////////////////////////////////
 #include "pub.hpp"
+using namespace pcl::io;
 class PublisherNode : public rclcpp::Node {
 
 public:
@@ -45,6 +46,9 @@ public:
       delete gp2_;
     }
   }
+  pcl::PointCloud<pcl::PointXYZ>::Ptr m_input_cloud{
+      new pcl::PointCloud<pcl::PointXYZ>};
+
   // ctor
   PublisherNode() : Node("PublisherNode"), count_(0) {
 
@@ -53,6 +57,8 @@ public:
     std::string topic_name = "/string_topic";
     std::string type = "sensor_msgs/msg/PointCloud2";
     gp2_->init(topic_name, type);
+
+    loadPCDFile("pcd/1m.pcd", *m_input_cloud);
 
     rclcpp::Rate rate(1);
     auto timer_callback = [this]() -> void {
@@ -82,7 +88,9 @@ public:
         // this->count_++;
 
         // convert
-        pcl_conversions::fromPCL(*cloud_filtered, bbb);
+        toROSMsg(*m_input_cloud, bbb);
+        bbb.header.stamp = now();
+        // pcl_conversions::fromPCL(*cloud_filtered, bbb);
         gp2_->send(bbb);
       }
     };
