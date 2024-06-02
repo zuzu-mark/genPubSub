@@ -4,12 +4,14 @@
 //////////////////////////////
 // generic publisher
 //////////////////////////////
-void genPub::send() {
+void genPub::init(void) {
   std::string topic_name = "/string_topic";
   std::string type = "sensor_msgs/msg/PointCloud2";
 
   publisher2_ =
       node_->create_generic_publisher(topic_name, type, rclcpp::QoS(1));
+}
+void genPub::send() {
 
   ////////////////////////////////
   // execute PUB

@@ -1,10 +1,10 @@
 #include "sub.hpp"
 #include "base.hpp"
-
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
 void genSub::recv(void) {
   std::string topic_name = "/string_topic";
-
-  /// 変換後の型
   std::string type = "sensor_msgs/msg/PointCloud2";
   subscribe_raw_messages<std::string, sensor_msgs::msg::PointCloud2>(
       1, topic_name, type);
@@ -18,7 +18,6 @@ void genSub::subscribe_raw_messages(size_t expected_recv_msg_count,
                                     const std::string &type) {
   std::vector<T1> messages;
   size_t counter = 0;
-
 
   sub_ = node_->create_generic_subscription(
       topic_name, type, rclcpp::QoS(1),
@@ -39,7 +38,7 @@ void genSub::subscribe_raw_messages(size_t expected_recv_msg_count,
           RCLCPP_INFO(node_->get_logger(), "\n<<receive[aa] %ld>> : %s",
                       counter, typeid(v).name());
 
-          RCLCPP_INFO(node_->get_logger(), "\n<<receive %ld>> : %ld", counter,
+          RCLCPP_INFO(node_->get_logger(), "\n<<receive %ld>> : %d", counter,
                       (v));
         }
 #endif

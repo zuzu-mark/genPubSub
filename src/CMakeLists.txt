@@ -23,7 +23,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 
-add_executable(multithreaded_executor multithreaded_executor.cpp pub.cpp sub.cpp)
+add_executable(multithreaded_executor main.cpp pub.cpp sub.cpp)
 ament_target_dependencies(multithreaded_executor rclcpp std_msgs sensor_msgs
 	pcl_conversions)
 
